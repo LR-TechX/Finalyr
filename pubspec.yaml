@@ -1,6 +1,6 @@
 name: cyber_ai
 description: Cyber-Ai - Android app
-publish_to: 'none' # private app
+publish_to: 'none'
 
 version: 1.0.0+1
 
@@ -12,11 +12,8 @@ dependencies:
   flutter:
     sdk: flutter
 
-  # Core & utility packages
-  characters: ^1.4.1
+  # External packages (only those safe to include)
   intl: ^0.20.2
-
-  # Platform / plugins (updated)
   flutter_local_notifications: ^19.4.1
   flutter_local_notifications_linux: ^6.0.0
   flutter_local_notifications_platform_interface: ^9.1.0
