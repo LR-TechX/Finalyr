@@ -15,7 +15,6 @@ dependencies:
   # Core & utility packages
   characters: ^1.4.1
   intl: ^0.20.2
-  meta: ^1.17.0
   material_color_utilities: ^0.13.0
 
   # Platform / plugins (updated)
