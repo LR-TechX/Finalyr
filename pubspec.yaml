@@ -15,7 +15,6 @@ dependencies:
   # Core & utility packages
   characters: ^1.4.1
   intl: ^0.20.2
-  material_color_utilities: ^0.13.0
 
   # Platform / plugins (updated)
   flutter_local_notifications: ^19.4.1
