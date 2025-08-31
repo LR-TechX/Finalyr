@@ -1,0 +1,64 @@
+name: Build Flutter Android App
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repo
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      # Setup Java (needed for Android builds)
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      # Setup Flutter
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.22.0' # <-- update to match your project version
+          channel: 'stable'
+
+      # Setup Android SDK
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      # Accept Android SDK licenses (fixes blocking issues)
+      - name: Accept Android SDK licenses
+        run: yes | sdkmanager --licenses
+
+      # Get Flutter dependencies
+      - name: Flutter pub get
+        run: flutter pub get
+
+      # Build the Android App Bundle (.aab)
+      - name: Build Android App Bundle
+        run: flutter build appbundle --release
+
+      # Build the APK (.apk)
+      - name: Build Android APK
+        run: flutter build apk --release
+
+      # Upload AAB artifact
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+
+      # Upload APK artifact
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-apk
+          path: build/app/outputs/flutter-apk/app-release.apk
