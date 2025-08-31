@@ -20,7 +20,6 @@ dependencies:
   android_alarm_manager_plus: ^3.0.4
   animations: ^2.0.11
   lottie: ^3.1.2
-  flutter_local_notifications: ^17.2.2
 
   # External packages
   intl: ^0.20.2
