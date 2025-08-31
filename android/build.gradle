@@ -1,15 +1,7 @@
-// File: android/build.gradle (Project-level)
-
-buildscript {
-    ext.kotlin_version = '1.9.24'
-    repositories {
-        google()
-        mavenCentral()
-    }
-    dependencies {
-        classpath "com.android.tools.build:gradle:8.5.2"
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
-    }
+// File: android/build.gradle
+plugins {
+    id "com.android.application" version "8.6.1" apply false
+    id "org.jetbrains.kotlin.android" version "1.9.24" apply false
 }
 
 allprojects {
@@ -19,14 +11,35 @@ allprojects {
     }
 }
 
-// Define build output directories
-rootProject.buildDir = '../build'
 subprojects {
-    project.buildDir = "${rootProject.buildDir}/${project.name}"
-    project.evaluationDependsOn(':app')
+    afterEvaluate { subproject ->
+        if (subproject.hasProperty('android')) {
+            subproject.android {
+                packagingOptions {
+                    jniLibs {
+                        pickFirsts += ['lib/*/Meta-INF/*']
+                    }
+                    resources {
+                        excludes += [
+                                '/META-INF/*',
+                                'META-INF/AL2.0',
+                                'META-INF/LGPL2.1',
+                                'META-INF/DEPENDENCIES',
+                                'META-INF/NOTICE',
+                                'META-INF/NOTICE.md',
+                                'META-INF/LICENSE',
+                                'META-INF/LICENSE.md',
+                                'META-INF/LICENSE.txt',
+                                'META-INF/NOTICE.txt',
+                                'META-INF/ASL2.0'
+                        ]
+                    }
+                }
+            }
+        }
+    }
 }
 
-// Clean task
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
