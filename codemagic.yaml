@@ -52,3 +52,6 @@ workflows:
         script: flutter build apk --debug
     artifacts:
       - build/**/outputs/**/*.apk
+
+      -name: Print pubspec.lock
+       script: cat pubspec.lock
