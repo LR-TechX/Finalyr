@@ -1,35 +1,75 @@
+// File: android/app/build.gradle
 plugins {
     id "com.android.application"
-    id "kotlin-android"
+    id "org.jetbrains.kotlin.android"
     id "dev.flutter.flutter-gradle-plugin"
 }
 
 android {
-    namespace "com.cyber_ai_app.app"   // <-- use your real package name
-    compileSdk 34
+    namespace "com.cyber_ai_app"
+    compileSdk 35
 
     defaultConfig {
-        applicationId "com.cyber_ai_app.app"   // <-- must match your package
+        applicationId "com.cyber_ai_app"
         minSdk 21
-        targetSdk 34
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
+        targetSdk 35
+
+        versionCode 20
+        versionName "2.0.0"
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+        coreLibraryDesugaringEnabled true
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
     }
 
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
             minifyEnabled false
             shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'),
+                    'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            shrinkResources false
+            debuggable true
         }
     }
 
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_11
-        targetCompatibility JavaVersion.VERSION_11
+    lint {
+        abortOnError false
+        checkReleaseBuilds false
     }
 
-    kotlinOptions {
-        jvmTarget = "11"
+    packagingOptions {
+        jniLibs {
+            pickFirsts += ['lib/*/Meta-INF/*']
+        }
+        resources {
+            excludes += [
+                    '/META-INF/*',
+                    'META-INF/AL2.0',
+                    'META-INF/LGPL2.1',
+                    'META-INF/DEPENDENCIES',
+                    'META-INF/NOTICE',
+                    'META-INF/NOTICE.md',
+                    'META-INF/LICENSE',
+                    'META-INF/LICENSE.md',
+                    'META-INF/LICENSE.txt',
+                    'META-INF/NOTICE.txt',
+                    'META-INF/ASL2.0'
+            ]
+        }
     }
+}
+
+dependencies {
+    // Enable Java 8+ APIs on older Android if needed by plugins (safe to keep)
+    coreLibraryDesugaring "com.android.tools:desugar_jdk_libs:2.1.2"
 }
