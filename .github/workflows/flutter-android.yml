@@ -1,0 +1,51 @@
+name: Flutter Android CI
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout source
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.35.1
+          channel: stable
+
+      - name: Install Java 17 (required by AGP 8.x)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install Android SDK 35
+        uses: android-actions/setup-android@v3
+        with:
+          packages: |
+            platform-tools
+            platforms;android-35
+            build-tools;35.0.1
+
+      - name: Flutter pub get
+        run: flutter pub get
+
+      - name: Print dependency tree (to debug v1 plugins)
+        run: flutter pub deps > pub_deps.txt
+
+      - name: Build appbundle (debug)
+        run: flutter build appbundle --debug
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-artifacts
+          path: build/**/outputs/**/*.aab
