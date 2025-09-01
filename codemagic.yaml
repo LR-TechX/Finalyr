@@ -1,67 +1,33 @@
-# File: codemagic.yaml
 workflows:
   android-release:
-    name: Android Release (API 35, Java 17)
+    name: Android Release
     max_build_duration: 60
-    instance_type: mac_mini_m2
     environment:
-      android_signing:
-        - keystore_reference           # <-- configure in Codemagic UI
+      flutter: stable
+      xcode: latest
+      android: latest
       vars:
-        PACKAGE_NAME: com.cyber_ai_app
-      flutter: 3.35.1                  # pin latest stable
-      java: 17
-    cache:
-      cache_paths:
-        - $HOME/.gradle/caches
-        - $HOME/.gradle/wrapper
-        - $HOME/.pub-cache
-
+        PACKAGE_NAME: "com.cyber_ai_app"
     scripts:
-      pre-build:
-      - echo "🔥 Cleaning Flutter build cache..."
-      - flutter clean
-      - rm -f pubspec.lock
-      - flutter pub get
-      - flutter pub upgrade --major-versions
-      - flutter doctor
-
-    scripts:
-      - name: Ensure Android SDK 35 is installed
+      - name: Get Flutter dependencies
         script: |
-          yes | sdkmanager --licenses >/dev/null
-          sdkmanager "platforms;android-35" "build-tools;35.0.1" "platform-tools"
-      - name: Flutter pub get
-        script: flutter pub get
-      - name: Build App Bundle (Play)
-        script: flutter build appbundle --release
-      - name: Build APK (optional)
-        script: flutter build apk --release
+          flutter pub get
+      - name: Run code generation (if using build_runner)
+        script: |
+          if grep -q "build_runner" pubspec.yaml; then
+            flutter pub run build_runner build --delete-conflicting-outputs
+          fi
+      - name: Clean Android build
+        script: |
+          cd android
+          ./gradlew clean
+      - name: Build release APK
+        script: |
+          cd ..
+          flutter build apk --release --flavor prod
     artifacts:
-      - build/**/outputs/**/*.aab
-      - build/**/outputs/**/*.apk
+      - build/app/outputs/flutter-apk/app-prod-release.apk
     publishing:
-      google_play:
-        credentials: Encrypted(...)    # <-- add via Codemagic UI
-        track: internal
-
-  android-debug:
-    name: Android Debug (smoke)
-    instance_type: mac_mini_m2
-    environment:
-      flutter: 3.35.1
-      java: 17
-    scripts:
-      - name: Ensure Android SDK 35 is installed
-        script: |
-          yes | sdkmanager --licenses >/dev/null
-          sdkmanager "platforms;android-35" "build-tools;35.0.1" "platform-tools"
-      - name: Flutter pub get
-        script: flutter pub get
-      - name: Build debug APK
-        script: flutter build apk --debug
-    artifacts:
-      - build/**/outputs/**/*.apk
-
-      -name: Print pubspec.lock
-       script: cat pubspec.lock
+      email:
+        recipients:
+          - chikeeluem171@gmail.com
