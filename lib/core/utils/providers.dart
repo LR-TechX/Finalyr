@@ -45,7 +45,7 @@ final chatProvider = StateNotifierProvider<ChatController, List<ChatMessage>>((r
 });
 
 class ChatController extends StateNotifier<List<ChatMessage>> {
-  final Reader read;
+  final ref.read;
   ChatController(this.read) : super(const []);
 
   Future<void> send(String message) async {

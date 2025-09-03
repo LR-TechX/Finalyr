@@ -40,8 +40,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     ),
                     decoration: BoxDecoration(
                       color: isUser
-                          ? Theme.of(context).colorScheme.primary.withOpacity(0.15)
-                          : Theme.of(context).colorScheme.secondary.withOpacity(0.15),
+                          ? Theme.of(context).colorScheme.primary.withOpacity(alpha: 0.15)
+                          : Theme.of(context).colorScheme.secondary.withOpacity(alpha: 0.15),
                       border: Border.all(
                         color: isUser
                             ? Theme.of(context).colorScheme.primary
