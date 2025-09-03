@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
 import 'package:uuid/uuid.dart';
@@ -12,7 +11,8 @@ import '../services/memory_service.dart';
 import '../services/tips_service.dart';
 import '../services/wifi_scanner_service.dart';
 
-final settingsProvider = StateNotifierProvider<SettingsController, AppSettings>((ref) {
+final settingsProvider =
+    StateNotifierProvider<SettingsController, AppSettings>((ref) {
   return SettingsController();
 });
 
@@ -40,21 +40,24 @@ class SettingsController extends StateNotifier<AppSettings> {
   }
 }
 
-final chatProvider = StateNotifierProvider<ChatController, List<ChatMessage>>((ref) {
-  return ChatController(ref.read);
+final chatProvider =
+    StateNotifierProvider<ChatController, List<ChatMessage>>((ref) {
+  return ChatController(ref);
 });
 
 class ChatController extends StateNotifier<List<ChatMessage>> {
-  final ref.read;
-  ChatController(this.read) : super(const []);
+  final Ref ref;
+
+  ChatController(this.ref) : super(const []);
 
   Future<void> send(String message) async {
     final id = const Uuid().v4();
     final user = ChatMessage.user(id, message);
     state = [...state, user];
 
-    final settings = read(settingsProvider);
-    final reply = await ChatService.instance.getReply(message: message, settings: settings);
+    final settings = ref.read(settingsProvider);
+    final reply =
+        await ChatService.instance.getReply(message: message, settings: settings);
     final bot = ChatMessage.bot(const Uuid().v4(), reply);
     state = [...state, bot];
   }

@@ -31,7 +31,8 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                 final msg = messages[messages.length - 1 - index];
                 final isUser = msg.role == 'user';
                 return Align(
-                  alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment:
+                      isUser ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
                     margin: const EdgeInsets.symmetric(vertical: 6),
                     padding: const EdgeInsets.all(12),
@@ -40,8 +41,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
                     ),
                     decoration: BoxDecoration(
                       color: isUser
-                          ? Theme.of(context).colorScheme.primary.withOpacity(alpha: 0.15)
-                          : Theme.of(context).colorScheme.secondary.withOpacity(alpha: 0.15),
+                          ? Theme.of(context)
+                              .colorScheme
+                              .primary
+                              .withOpacity(0.15) // ✅ fixed
+                          : Theme.of(context)
+                              .colorScheme
+                              .secondary
+                              .withOpacity(0.15), // ✅ fixed
                       border: Border.all(
                         color: isUser
                             ? Theme.of(context).colorScheme.primary
@@ -58,11 +65,14 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
               },
             ),
           ),
-          _ChatInput(controller: _controller, onSend: (text) async {
-            if (text.trim().isEmpty) return;
-            await ref.read(chatProvider.notifier).send(text.trim());
-            _controller.clear();
-          }),
+          _ChatInput(
+            controller: _controller,
+            onSend: (text) async {
+              if (text.trim().isEmpty) return;
+              await ref.read(chatProvider.notifier).send(text.trim());
+              _controller.clear();
+            },
+          ),
         ],
       ),
     );
@@ -85,7 +95,9 @@ class _ChatInput extends StatelessWidget {
             Expanded(
               child: TextField(
                 controller: controller,
-                decoration: const InputDecoration(hintText: 'Ask about cybersecurity…'),
+                decoration: const InputDecoration(
+                  hintText: 'Ask about cybersecurity…',
+                ),
                 onSubmitted: onSend,
               ),
             ),
