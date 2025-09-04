@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
-
+import 'package:uuid/uuid.dart';
+import '../../core/models/chat_message.dart';
 import '../../core/utils/providers.dart';
 
 class ChatScreen extends ConsumerStatefulWidget {
@@ -13,10 +13,11 @@ class ChatScreen extends ConsumerStatefulWidget {
 
 class _ChatScreenState extends ConsumerState<ChatScreen> {
   final _controller = TextEditingController();
+  final _uuid = const Uuid();
 
   @override
   Widget build(BuildContext context) {
-    final messages = ref.watch(chatProvider);
+    final history = ref.watch(chatHistoryProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text('CyberAI Chat')),
@@ -25,90 +26,55 @@ class _ChatScreenState extends ConsumerState<ChatScreen> {
           Expanded(
             child: ListView.builder(
               padding: const EdgeInsets.all(12),
-              reverse: true,
-              itemCount: messages.length,
-              itemBuilder: (context, index) {
-                final msg = messages[messages.length - 1 - index];
-                final isUser = msg.role == 'user';
+              itemCount: history.length,
+              itemBuilder: (ctx, i) {
+                final m = history[i];
+                final isUser = m.role == 'user';
                 return Align(
-                  alignment:
-                      isUser ? Alignment.centerRight : Alignment.centerLeft,
+                  alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
                   child: Container(
                     margin: const EdgeInsets.symmetric(vertical: 6),
                     padding: const EdgeInsets.all(12),
-                    constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.8,
-                    ),
                     decoration: BoxDecoration(
-                      color: isUser
-                          ? Theme.of(context)
-                              .colorScheme
-                              .primary
-                              .withOpacity(0.15) // ✅ fixed
-                          : Theme.of(context)
-                              .colorScheme
-                              .secondary
-                              .withOpacity(0.15), // ✅ fixed
-                      border: Border.all(
-                        color: isUser
-                            ? Theme.of(context).colorScheme.primary
-                            : Theme.of(context).colorScheme.secondary,
-                      ),
+                      color: isUser ? Theme.of(context).colorScheme.primaryContainer : Theme.of(context).colorScheme.surfaceVariant,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Text(
-                      msg.content,
-                      style: GoogleFonts.ibmPlexMono(fontSize: 14),
-                    ),
+                    child: Text(m.content),
                   ),
                 );
               },
             ),
           ),
-          _ChatInput(
-            controller: _controller,
-            onSend: (text) async {
-              if (text.trim().isEmpty) return;
-              await ref.read(chatProvider.notifier).send(text.trim());
-              _controller.clear();
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ChatInput extends StatelessWidget {
-  final TextEditingController controller;
-  final ValueChanged<String> onSend;
-  const _ChatInput({required this.controller, required this.onSend});
-
-  @override
-  Widget build(BuildContext context) {
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(12, 4, 12, 12),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: controller,
-                decoration: const InputDecoration(
-                  hintText: 'Ask about cybersecurity…',
+          Padding(
+            padding: const EdgeInsets.all(12),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: const InputDecoration(hintText: 'Type a message...'),
+                  ),
                 ),
-                onSubmitted: onSend,
-              ),
+                const SizedBox(width: 8),
+                IconButton(
+                  icon: const Icon(Icons.send),
+                  onPressed: () async {
+                    final text = _controller.text.trim();
+                    if (text.isEmpty) return;
+                    _controller.clear();
+                    ref.read(chatHistoryProvider.notifier).add(
+                          ChatMessage.user(_uuid.v4(), text),
+                        );
+                    final reply = await ref.read(chatServiceProvider).replyTo(text);
+                    if (mounted) {
+                      ref.read(chatHistoryProvider.notifier).add(reply);
+                    }
+                  },
+                )
+              ],
             ),
-            const SizedBox(width: 8),
-            ElevatedButton.icon(
-              onPressed: () => onSend(controller.text),
-              icon: const Icon(Icons.send),
-              label: const Text('Send'),
-            ),
-          ],
-        ),
+          )
+        ],
       ),
     );
   }
