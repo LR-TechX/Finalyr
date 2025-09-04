@@ -1,33 +1,31 @@
 workflows:
   android-release:
-    name: Android Release
+    name: Android Release (Flutter)
     max_build_duration: 60
     environment:
       flutter: stable
       xcode: latest
-      android: latest
       vars:
-        PACKAGE_NAME: "com.cyber_ai_app"
+        JAVA_HOME: /Library/Java/JavaVirtualMachines/zulu-17.jdk/Contents/Home
+      groups:
+        - keystore_credentials
     scripts:
-      - name: Get Flutter dependencies
+      - name: Flutter clean & pub get
         script: |
+          flutter --version
+          flutter clean
           flutter pub get
-      - name: Run code generation (if using build_runner)
+      - name: Build APK (release)
         script: |
-          if grep -q "build_runner" pubspec.yaml; then
-            flutter pub run build_runner build --delete-conflicting-outputs
-          fi
-      - name: Clean Android build
-        script: |
-          cd android
-          ./gradlew clean
-      - name: Build release APK
-        script: |
-          cd ..
-          flutter build apk --release --flavor prod
+          export JAVA_HOME="$JAVA_HOME"
+          echo "Using JAVA_HOME=$JAVA_HOME"
+          flutter build apk --release
     artifacts:
-      - build/app/outputs/flutter-apk/app-prod-release.apk
+      - build/app/outputs/**/*.{apk,aab}
     publishing:
       email:
         recipients:
           - chikeeluem171@gmail.com
+        notify:
+          success: true
+          failure: true
