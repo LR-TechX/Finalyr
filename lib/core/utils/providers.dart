@@ -1,15 +1,11 @@
-import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:hive/hive.dart';
-import 'package:uuid/uuid.dart';
-
 import '../models/chat_message.dart';
 import '../models/settings_model.dart';
 import '../services/chat_service.dart';
 import '../services/knowledge_base_service.dart';
 import '../services/memory_service.dart';
 import '../services/tips_service.dart';
-import '../services/wifi_scanner_service.dart';
 
 final settingsProvider = StateProvider<AppSettings>((ref) => AppSettings.defaults);
 
