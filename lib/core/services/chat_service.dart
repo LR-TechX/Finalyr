@@ -1,34 +1,21 @@
-import 'dart:convert';
-import 'package:dio/dio.dart';
-import 'package:uuid/uuid.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/chat_message.dart';
-import 'knowledge_base_service.dart';
-import 'memory_service.dart';
 
-class ChatService {
-  final KnowledgeBaseService knowledgeBase;
-  final MemoryService memory;
-  final _dio = Dio();
-  final _uuid = const Uuid();
+class ChatService extends StateNotifier<List<ChatMessage>> {
+  ChatService() : super([]);
 
-  ChatService({required this.knowledgeBase, required this.memory});
-
-  Future<ChatMessage> replyTo(String userInput) async {
-    // 1) Check local knowledge base
-    final kb = knowledgeBase.findAnswer(userInput);
-    if (kb != null) {
-      return ChatMessage.bot(_uuid.v4(), kb);
-    }
-
-    // 2) Check memory
-    final mem = memory.getFromMemory(userInput);
-    if (mem != null) {
-      return ChatMessage.bot(_uuid.v4(), mem);
-    }
-
-    // 3) Fallback: echo / placeholder (replace with your model/backend call)
-    final content = "I don't have that in my knowledge base yet, but I'm learning. You asked: \"$userInput\"";
-    await memory.addUnanswered(userInput);
-    return ChatMessage.bot(_uuid.v4(), content);
+  void sendMessage(String text, {bool isUser = true}) {
+    final newMessage = ChatMessage(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      text: text,
+      isUser: isUser,
+      timestamp: DateTime.now(),
+    );
+    state = [...state, newMessage];
   }
 }
+
+final chatServiceProvider =
+    StateNotifierProvider<ChatService, List<ChatMessage>>((ref) {
+  return ChatService();
+});
