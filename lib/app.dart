@@ -1,23 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:google_fonts/google_fonts.dart';
-
-import 'features/splash/splash_screen.dart';
 import 'theme/cyber_theme.dart';
+import 'features/chat/chat_screen.dart';
 
-class CyberAIApp extends StatelessWidget {
-  const CyberAIApp({super.key});
+class CyberApp extends StatelessWidget {
+  const CyberApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final theme = buildCyberTheme();
-    return ProviderScope(
-      child: MaterialApp(
-        title: 'CyberAI',
-        debugShowCheckedModeBanner: false,
-        theme: theme,
-        home: const SplashScreen(),
-      ),
+    return MaterialApp(
+      title: 'CyberAI',
+      theme: cyberTheme,
+      debugShowCheckedModeBanner: false,
+      home: const ChatScreen(),
     );
   }
 }
